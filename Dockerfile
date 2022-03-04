@@ -1,5 +1,4 @@
 # Jupyter Deep Learning Notebook
-# FROM jupyter/tensorflow-notebook:latest
 FROM continuumio/anaconda3:latest
 
 # needed for opencv-python
@@ -8,12 +7,7 @@ RUN RUN apt-get -y update && apt-get -y install ffmpeg libsm6 libxext6
 RUN conda install -y jupyter
 RUN pip install scikit-learn seaborn pandas tensorflow opencv-python
 
-# Add permissions for creating sjsu to docker user
-# USER root
 RUN mkdir /sjsu
-# RUN useradd docker
-# RUN chown docker:docker /sjsu
-# USER docker
 
 # Go into working dir /sjsu
 WORKDIR /sjsu
@@ -22,6 +16,4 @@ WORKDIR /sjsu
 COPY . ./cmpe257_ld
 
 # start jupyter notebook
-# CMD ["jupyter", "notebook"]
-
 CMD ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
