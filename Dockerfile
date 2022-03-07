@@ -2,7 +2,7 @@
 FROM continuumio/anaconda3:latest
 
 # needed for opencv-python
-RUN RUN apt-get -y update && apt-get -y install ffmpeg libsm6 libxext6
+RUN apt-get -y update && apt-get -y install ffmpeg libsm6 libxext6
 
 RUN conda install -y jupyter
 RUN pip install scikit-learn seaborn pandas tensorflow opencv-python
