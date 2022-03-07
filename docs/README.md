@@ -22,7 +22,6 @@ docker build -t cmpe257_ld:dev .
 # volume mount created from dev host curr proj $PWD to /sjsu/cmpe257 in container
 # if on linux, prepend sudo
 docker run --name cmpe257_ld_dev -p 8888:8888 -it -v $PWD:/sjsu/cmpe257_ld cmpe257_ld:dev
-docker run --name cmpe257_ld_dev -p 8888:8888 -it cmpe257_ld:dev
 ~~~
 
 
