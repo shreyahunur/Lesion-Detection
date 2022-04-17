@@ -1,4 +1,9 @@
 # Lesion-Detection
+
+Guide to Deploying Lesion Detection Dev environment in a Docker container:
+
+- [Deploy CMPE257 ML LD Docker Container](./docs/README.md)
+
 Lesion Detection for ESD in colon
 
 Abstract (Purpose of ML App):
