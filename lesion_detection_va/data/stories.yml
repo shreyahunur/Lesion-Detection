@@ -31,11 +31,10 @@ stories:
   
 - story: Doctor path
   steps:
-  - intent: greet
-  - action: utter_greet
+  - intent: greet_dtr
+  - action: utter_greet_dtr
   - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
+  - action: action_run_cnn
   - intent: deny
   - action: utter_goodbye
 
