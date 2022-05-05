@@ -33,11 +33,92 @@ stories:
   steps:
   - intent: greet_dtr
   - action: utter_greet_dtr
-  - intent: mood_unhappy
-  - action: action_run_cnn
-  - intent: deny
-  - action: utter_goodbye
+  - intent: symptom_dtr
+  - action: utter_symptom_dtr
+  - intent: risk_dtr
+  - action: utter_risk_dtr
+  - intent: image_classification
+  - action: action_run_image_classification
+  
+- story: Doctor_classification path
+  steps:
+  - intent: image_classification
+  - action: action_run_image_classification
+  
+- story: Physician path
+  steps:
+  - intent: greet_physician
+  - action: utter_greet_physician
+  - intent: screen_physician
+  - action: utter_screen_physician
+  - intent: diag_phy_blood
+  - action: utter_diag_phy_blood
+  - intent: diag_phy_colon
+  - action: utter_diag_phy_colon
+  
+- story: Physician_diagnosis path
+  steps:
+  - intent: diag_phy_blood
+  - action: utter_diag_phy_blood
+  - intent: diag_phy_colon
+  - action: utter_diag_phy_colon
+  - intent: image_classification
+  - action: action_run_image_classification
+  - intent: object_detection
+  - action: action_run_object_detection
+  
+- story: Physician_classification path
+  steps:
+  - intent: image_classification
+  - action: action_run_image_classification
+  
+- story: Physician_object_detection path
+  steps:
+  - intent: object_detection
+  - action: action_run_object_detection
+  
+- story: Surgeon path
+  steps:
+  - intent: greet_surgeon
+  - action: utter_greet_surgeon
+  - intent: staging_surgeon
+  - action: utter_staging_surgeon
+  - intent: detect_surgeon
+  - action: action_run_image_classification
 
-#- story: Physician path
-#- story: Surgeon path
+ 
+- story: Surgeon_classification path
+  steps:
+  - intent: image_classification
+  - action: action_run_image_classification
+  
+- story: Surgeon_action path
+  steps:
+  - intent: detect_surgeon
+  - action: action_run_object_detection
+  - intent: video_detection
+  - action: action_run_video_detection
+  - intent: image_segmentation 
+  - action: action_run_image_segmentation
+  
+- story: Surgeon_video_detection path
+  steps:
+  - intent: video_detection
+  - action: action_run_video_detection
+
+- story: Surgeon_image_segmentation path
+  steps:
+  - intent: image_segmentation
+  - action: action_run_image_segmentation
+
+- story: Student path
+  steps:
+  - intent: greet_student
+  - action: utter_greet_student
+  - intent: model_student
+  - action: utter_model_student
+  - intent: show_best_model_student
+  - action: utter_best_model_student
+  - intent: show_worst_model_student
+  - action: utter_worst_model_student
 

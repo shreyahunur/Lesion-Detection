@@ -9,6 +9,23 @@ intents:
   - mood_unhappy
   - bot_challenge
   - greet_dtr
+  - symptom_dtr
+  - risk_dtr
+  - greet_physician
+  - screen_physician
+  - diag_phy_blood
+  - diag_phy_colon
+  - greet_surgeon
+  - staging_surgeon
+  - detect_surgeon
+  - greet_student
+  - model_student
+  - show_best_model_student
+  - show_worst_model_student
+  - object_detection
+  - image_segmentation
+  - video_detection
+  - image_classification
 
 responses:
   utter_greet_dtr:
@@ -32,6 +49,55 @@ responses:
 
   utter_iamabot:
   - text: "I am a bot, powered by Rasa."
+  
+  utter_symptom_dtr:
+  - text: "Signs and symptoms of colon cancer include:
+
+	A persistent change in your bowel habits, including diarrhea or constipation or a 		change in the consistency of your stool
+	Rectal bleeding or blood in your stool
+	Persistent abdominal discomfort, such as cramps, gas or pain
+	A feeling that your bowel doesn't empty completely
+	Weakness or fatigue
+	Unexplained weight loss"
+  
+  utter_risk_dtr:
+  - text: "Older age,A personal history of colorectal cancer or polyps.Inflammatory 		intestinal conditions, Inherited syndromes that increase colon cancer risk, 		 Family history of colon cancer,Low-fiber, high-fat diet, Diabetes, Obesity, Smoking, 	  Alchahol, Nuclear Radiation."
+
+  utter_greet_physician:
+  - text: "Hi Physician"
+  
+  utter_screen_physician:
+  - text: "It is recommend that people with an average risk of colon cancer begin screening 	around age 50. But people with an increased risk, such as those with a family history 	of colon cancer or African-American heritage, should consider screening sooner."
+  
+  utter_diag_phy_blood:
+  - text: "No"
+  
+  utter_diag_phy_colon:
+  - text: "Yes"
+  
+  utter_greet_surgeon:
+  - text: "Hi Surgeon...!!!"
+  
+  utter_staging_surgeon:
+  - text: "If you've been diagnosed with colon cancer, your doctor may recommend tests to determine the extent (stage) of your cancer. Staging helps determine what treatments are most appropriate for you.
+
+Staging tests may include imaging procedures such as abdominal, pelvic and chest CT scans. In many cases, the stage of your cancer may not be fully determined until after colon cancer surgery."
+  
+  utter_greet_student:
+  - text: "Hi , Are you still alive?"
+  
+  utter_model_student:
+  - text: "Faster RCNN Polyp Segmentor,
+  	YoloV4 Polyp Detector,
+  	Keras CNN Polyp Classifier."
+  
+  utter_best_model_student:
+  - text: "YOLO"
+  
+  utter_worst_model_student:
+  - text: "Keras CNN"
+  
+  
 
 session_config:
   session_expiration_time: 60
@@ -39,3 +105,7 @@ session_config:
   
 actions:
   - action_run_cnn
+  - action_run_image_classification
+  - action_run_object_detection
+  - action_run_video_detection
+  - action_run_image_segmentation

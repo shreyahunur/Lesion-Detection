@@ -93,6 +93,133 @@ nlu:
 - intent: greet_dtr
   examples:  |
     - Hi I am a Doctor!
+    - Hey I am doc
+    
+- intent: symptom_dtr
+  examples:  |
+    - Can you share symptoms of Colon Cancer?
+    - tell me symptoms of colon cancer
+    - Can you describe the signs and symptoms of colon cancer? 
+    - Is it possible for you to describe the signs and symptoms of colon cancer? 
+
+- intent: risk_dtr
+  examples:  |
+    - What are risk factors of colon cancer?
+    - Tell me what can increase risk of colon cancer
+    - What are the factors that increase the risk of colon cancer? 
+    - What factors can raise the risk of colon cancer? 
+    
+- intent: greet_physician
+  examples:  |
+    - Hi I am a Physician!
     - I need help with Diagnosis of Colon Cancer.
     - I want help with diagnose for Colon Cancer.
+ 
+- intent: screen_physician
+  examples:  |
+    - When should one screen for colon cancer ?
+    - Screening colon cancer
+    - When should you get a colon cancer screening? 
+    - When is it appropriate to have a colonoscopy? 
+    
+- intent: diag_phy_blood
+  examples:  |
+    - Can you detect colon cancer using blood test 
+    - recognize colon cancer using blood test
+    - Is it possible to detect colon cancer using a blood test? 
+    - Is there a blood test that can detect colon cancer? 
+    
+- intent: diag_phy_colon
+  examples:  |
+    - Can you detect colon cancer using colonoscopy
+    - recognize colon cancer using colonoscopy
+    - Using a colonoscopy, can you detect colon cancer? 
+    - colonoscopy to detect colon cancer? 
+    
+- intent: image_classification
+  examples:  |
+    - Can you classify colon image ?
+    - Can you tell me more about this colon image?
+    - What type of polyp is present in this colon cancer image
+    - In this colon cancer image, what type of polyp is visible? 
+    
+- intent: greet_surgeon
+  examples:  |
+    - Hi I am a Surgeon!
+    - I need help with remedy of Colon Cancer.
+    - I want help with treatment for Colon Cancer.
+    - I'd like assistance with colon cancer treatment. 
+    
+- intent: staging_surgeon
+  examples:  |
+    - Can staging test help to determine stage of cancer?
+    - Can staging test help to determine level of cancer?
+    - Is it possible to use a staging test to detect the stage of cancer? 
+    - Is it possible to use a staging test to figure out what stage of cancer you have? 
+    
+- intent: detect_surgeon
+  examples:  |
+    - Detect whether generated image has cancer?
+    - Detect whether patient has cancer?
+    - Is it possible to tell if a patient has cancer? 
+    - Is it possible to tell if a created image has cancer? 
+    - Is it possible to tell if the image you've generated has cancer? 
+    
+- intent: object_detection
+  examples:  |
+    - Can you detect a polyp for me?
+    - Where is the polyp in this image?
+    - Can you help me to detect polyp in this image?
+    - Can you assist me in identifying the polyp in this image? 
+
+    
+- intent: video_detection
+  examples:  |
+    - Can you detect polyps in this video for me?
+    - Where are the polyps in this video?
+    - Can you help me to detect polyps in this video?   
+    - Can you assist me in identifying the polyps in this video? 
+    
+- intent: image_segmentation
+  examples:  |
+    - Can you help me highlight the polyp in this image?
+    - Can you isolate the polyp for me?
+    - Could you perhaps assist me with highlighting the polyp in this image? 
+    - Is it possible for you to isolate the polyp for me?
+    - Can you perform the polyp image segmentation on this image?
+    - Is it possible for you to do polyp image segmentation on this image?   
+    
+- intent : greet_student
+  examples:  |
+    - Hi I am a CMPE 257 student
+    - cmpe 257
+    - Hi I am Prof. Shim's student
+    
+- intent : model_student
+  examples:  |
+    - Show me which models did you train for classifying polyp
+    - list models used for classification of cancer
+    - Show me which models you used to categorize polyps 
+    - Show me the polyp classification models you developed
+ 
+- intent : show_best_model_student
+  examples:  |
+    - Show me best model accuracy
+    - best model
+    - Show me your most accurate model
+    - Display the most accurate model for me
+    
+- intent : show_worst_model_student
+  examples:  |
+    - Show me worst model accuracy
+    - worst model
+    - Show me the model with the worst accuracy
+    - Show me the model with the lowest accuracy
+  
+
+  
+ 
+    
+    
+  
     
