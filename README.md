@@ -9,6 +9,13 @@ Lesion Detection for ESD in colon
 Abstract (Purpose of ML App):
 
 A gastroenterologist is a doctor who diagnoses patients for colon cancer, which is one of the most common diagnosed cancers throughout the world. Detecting these lesions in the colon usually requires using an endoscope device with a camera that goes to the patient’s colon area. This lesion detection is also a difficult challenge for specialists, which could result in human error. So AI/ML engineers have stepped in to provide assistance to these specialists to increase the accuracy and the early diagnosis rate for lesion detection. After consulting with some medical tech companies about the data set they would want to use for AI/ML, we have determined we will need to either create a data set from scratch from several YouTube videos where specialists identified lesions in the colon or find a data set that has already been created doing a similar process just mentioned. For creating the data set, we would extract out the frames from these videos, label a sample of the frames with “lesion or not lesion” to do semi-supervised learning. We plan to read multiple publications on the latest Deep Neural Network architectures that are being used to identify lesions in the colon. The goal that some of these companies are aiming to do is perform non-invasive techniques to treat or remove the patients colon cancer usually a procedure known as Endoscopic submucosal dissection (ESD) and lesion detection will help in the process of using automated robotic surgery to cut out the lesion from the patient, ultimately reducing the mortality rate of colorectal cancer.
+
+We have made conversational chatbot using Rasa with four different entities interacting with chatbot. The entities were Doctor, Physician, Surgeon and Student. The conversation flow between each entity and chatbot is as follows:
+
+1. Doctor:
+-> Doctor will ask about symptoms regarding colon cancer.
+-> Doctor will ask about types of treatments we can use to cure it?
+
  
 Dataset links
 https://enric1994.github.io/synth-colon/
