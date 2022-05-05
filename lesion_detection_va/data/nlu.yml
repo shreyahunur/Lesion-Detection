@@ -216,7 +216,24 @@ nlu:
     - Show me the model with the worst accuracy
     - Show me the model with the lowest accuracy
   
+- intent: req_patient_polyp_clf_report
+  examples: |
+    - I would like a patient classification report
+    - I would like a patient polyp classifier report
+    - I want a patient classification report
+    - I want a patient polyp classifier report
+    - Show me patient classification report
+    - Show me patient polyp classifier report
 
+
+- intent: req_patient_polyp_dtr_report
+  examples: |
+    - I would like a patient detection report
+    - I would like a patient polyp detector report
+    - I want a patient detection report
+    - I want a patient polyp detector report
+    - Show me patient detection report
+    - Show me patient polyp detector report
   
  
     

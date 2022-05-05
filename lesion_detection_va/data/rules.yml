@@ -11,3 +11,40 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Request Patient Polyp Classifier Report
+  steps:
+  - intent: req_patient_polyp_clf_report
+  - action: patient_report_clf_form
+  - active_loop: patient_report_clf_form
+
+- rule: Send Patient Polyp Classifier Report
+  condition:
+  - active_loop: patient_report_clf_form
+  steps:
+  - action: patient_report_clf_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: utter_report_ack
+  - action: utter_patient_clf_id
+  - action: action_run_image_classification
+
+- rule: Request Patient Polyp Detector Report
+  steps:
+  - intent: req_patient_polyp_dtr_report
+  - action: patient_report_dtr_form
+  - active_loop: patient_report_dtr_form
+
+- rule: Send Patient Polyp Detector Report
+  condition:
+  - active_loop: patient_report_dtr_form
+  steps:
+  - action: patient_report_dtr_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: utter_report_ack
+  - action: utter_patient_dtr_id
+  - action: action_run_object_detection
+

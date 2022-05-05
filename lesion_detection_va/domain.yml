@@ -26,8 +26,51 @@ intents:
   - image_segmentation
   - video_detection
   - image_classification
+  - req_patient_polyp_clf_report
+  - req_patient_polyp_dtr_report
+
+forms:
+  patient_report_clf_form:
+    required_slots:
+      - patient_clf_id
+  patient_report_dtr_form:
+    required_slots:
+      - patient_dtr_id
+
+slots:
+  patient_clf_id:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: patient_report_clf_form
+            requested_slot: patient_clf_id
+  patient_dtr_id:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: patient_report_dtr_form
+            requested_slot: patient_dtr_id
 
 responses:
+  utter_ask_patient_clf_id:
+    - text: "What is the ID of your patient you need polyp classification?"
+
+  utter_ask_patient_dtr_id:
+    - text: "What is the ID of your patient you need polyp detection?"
+
+  utter_report_ack:
+    - text: "Thanks for filling in patient ID needed for report."
+
+  utter_patient_clf_id:
+    - text: "Getting Patient Polyp Classifier Report for ID: {patient_clf_id}"
+
+  utter_patient_dtr_id:
+    - text: "Getting Patient Polyp Detector Report for ID: {patient_dtr_id}"
+
   utter_greet_dtr:
   - text: "Hi Doc! How are you?"
   
