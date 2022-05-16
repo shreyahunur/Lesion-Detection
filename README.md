@@ -14,27 +14,27 @@ A gastroenterologist is a doctor who diagnoses patients for colon cancer, which 
 
 For more info on our CNN Polyp Classification model, check out our notebook below:
 
-**[CNN_Polyp_Classification](Notebooks\CNN_Polyp_Classification.ipynb)**
+**[CNN_Polyp_Classification](Notebooks/CNN_Polyp_Classification.ipynb)**
 
 ## UNet Polyp Segmentation Model Notebook
 
 For more info on our UNet Polyp Segmentation model, check out our notebook below:
 
-- [UNet_Polyp_Segmentation](Notebooks\UNet_Polyp_Segmentation.ipynb)
+- [UNet_Polyp_Segmentation](Notebooks/UNet_Polyp_Segmentation.ipynb)
 
 For this notebook above, we manually created our own segmentation labeled images:
 
-![100_manually_masked_polyps_for_unet](docs\images\100_manually_masked_polyps_for_unet.jpg)
+![100_manually_masked_polyps_for_unet](docs/images/100_manually_masked_polyps_for_unet.jpg)
 
 ## YOLOv4 Polyp Detection Model Notebook
 
 For more info on our YOLOv4 Polyp Detection model, check out our notebook below:
 
-- [YOLOv4_Polyp_Detection](Notebooks\YOLOv4_Polyp_Detection.ipynb)
+- [YOLOv4_Polyp_Detection](Notebooks/YOLOv4_Polyp_Detection.ipynb)
 
 At the end of YOLOv4 Polyp Detection notebook, you will know how to train it to be able to detect polyps like the following:
 
-![yolov4_polyp_detection_4_images_5_6_22](docs\images\yolov4_polyp_detection_4_images_5_6_22.jpg)
+![yolov4_polyp_detection_4_images_5_6_22](docs/images/yolov4_polyp_detection_4_images_5_6_22.jpg)
 
 ## Integrating Our Models into Rasa AI System
 
