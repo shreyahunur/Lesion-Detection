@@ -7,6 +7,7 @@ The following software was launched in Docker containers based on Docker Desktop
 - Rasa 3.1.0 (Rasa Chatbot Server)
 - Rasa 3.1.1 SDK (Rasa Actions Server)
 - Ngrok version latest (Exposes Rasa VA to Internet)
+- Tensorflow-GPU 2.5.0
 
 ## Action Items
 
@@ -53,18 +54,34 @@ Order Rasa goes for Files to Answer User comment/question/etc:
 # Setup RASA GPU Project
 cd Lesion-Detection\lesion_detection_va
 
-# Example
-docker run --name rasa-init --gpus all -it --privileged -v C:\Users\james\Documents\GitHub\Lesion-Detection\lesion_detection_va:/app rasa/rasa:3.1.0-full init --no-prompt
+
+# DEMO
+docker run --name rasa-init --gpus all -it --privileged -v C:\Users\james\Documents\GitHub\Lesion-Detection\lesion_detection_va:/app rasa_3.1.0_rasa_sdk_1.1.1:dev
+
+# go into docker container, rasa init
+rasa init --no-prompt
 
 # Yours
 docker run --name rasa-init --gpus all -it --privileged -v ${PWD}\GitHub\Lesion-Detection\lesion_detection_va:/app rasa/rasa:3.1.0-full init --no-prompt
+
+cd ${PWD}\GitHub\Lesion-Detection\lesion_detection_va
+rasa init --no-prompt
 ~~~
 
 ### Train RASA Model
 
 ~~~bash
 # Train Rasa Model
-docker run --name rasa-train --gpus all -it --privileged -v ${PWD}\GitHub\Lesion-Detection\lesion_detection_va:/app rasa/rasa:3.1.0-full train --domain domain.yml --data data --out models
+docker run --name rasa-train --gpus all -it --privileged -v ${PWD}\GitHub\Lesion-Detection\lesion_detection_va:/app rasa/rasa:3.1.0-full 
+
+# DEMO
+docker run --name rasa-train --gpus all -it --privileged -v  C:\Users\james\Documents\GitHub\Lesion-Detection\lesion_detection_va:/app rasa_3.1.0_rasa_sdk_1.1.1:dev
+
+rasa train --domain domain.yml --data data --out models
+
+
+cd ${PWD}\GitHub\Lesion-Detection\lesion_detection_va
+rasa train --domain domain.yml --data data --out models
 ~~~
 
 
@@ -73,6 +90,9 @@ docker run --name rasa-train --gpus all -it --privileged -v ${PWD}\GitHub\Lesion
 ~~~bash
 # Talk to your Virtual Assistant From Shell
 docker run --name rasa-shell --gpus all -it --privileged -p 5005:5005 -v ${PWD}\GitHub\Lesion-Detection\lesion_detection_va:/app rasa/rasa:3.1.0-full shell
+
+cd ${PWD}\GitHub\Lesion-Detection\lesion_detection_va
+rasa shell
 ~~~
 
 ### Talk to your Virtual Assistant From Slack
@@ -82,6 +102,18 @@ To launch Rasa server, so our Virtual Assistant is just running in the Docker co
 ~~~bash
 # Talk to your Virtual Assistant from Unity
 docker run --name rasa-run --gpus all -it --privileged -p 5005:5005 -v ${PWD}\GitHub\Lesion-Detection\lesion_detection_va:/app rasa/rasa:3.1.0-full run
+
+
+# DEMO
+docker run --name rasa-run --gpus all -it --privileged -p 5005:5005 -v  C:\Users\james\Documents\GitHub\Lesion-Detection\lesion_detection_va:/app --net colon-cancer-mayoclinic rasa_3.1.0_rasa_sdk_1.1.1:dev
+
+cd app
+rasa run
+
+
+
+cd ${PWD}\GitHub\Lesion-Detection\lesion_detection_va
+rasa run
 ~~~
 
 ### Adding Custom Actions
@@ -141,6 +173,19 @@ docker network create colon-cancer-mayoclinic
 
 # MVP Project
 docker run -d --name cc-action-server --gpus all -it --privileged -p 5055:5055 -v ${PWD}\GitHub\Lesion-Detection\lesion_detection_va\actions:/app/actions --net colon-cancer-mayoclinic rasa/rasa-sdk:3.1.1
+
+# DEMO
+docker run --name ld-action-server --gpus all -it --privileged -p 5055:5055 -v  C:\Users\james\Documents\GitHub\Lesion-Detection\lesion_detection_va\actions:/app/actions --net colon-cancer-mayoclinic rasa_3.1.0_rasa_sdk_1.1.1:dev
+
+cd app/actions
+rasa run actions
+
+
+
+cd ${PWD}\GitHub\Lesion-Detection\lesion_detection_va\actions
+
+cd C:\Users\james\Documents\GitHub\Lesion-Detection\lesion_detection_va\actions
+rasa run actions
 ~~~
 
 
@@ -169,8 +214,11 @@ docker run --name rasa-shell --gpus all -it --privileged -p 5005:5005 -v ${PWD}\
 Talk to our Rasa Chatbot from Slack:
 
 ~~~bash
-# Test: Talk to your Virtual Assistant from Unity
-docker run --name rasa-run --gpus all -it --privileged -p 5005:5005 -v ${PWD}\GitHub\Lesion-Detection\lesion_detection_va:/app --net my-project  rasa/rasa:3.1.0-full run
+# DEMO
+docker run --name rasa-run --gpus all -it --privileged -p 5005:5005 -v  C:\Users\james\Documents\GitHub\Lesion-Detection\lesion_detection_va:/app --net colon-cancer-mayoclinic rasa_3.1.0_rasa_sdk_1.1.1:dev
+
+cd app
+rasa run
 ~~~
 
 ## Expose Rasa Chatbot App on Internet using Ngrok
@@ -181,6 +229,12 @@ Launch **ngrok** Docker container to create a tunnel from the newly assigned pub
 
 ~~~bash
 docker run -d -p 4040:4040 --privileged --net colon-cancer-mayoclinic --name ngrok-integ-rasa wernight/ngrok ngrok http rasa-run:5005
+
+# NOTE: Rasa run server must be running before using ngrok
+rasa run
+
+ngrok http 5005
+
 ~~~
 
 The following public urls are examples of what you see going to **http://localhost:4040/inspect/http**
@@ -190,9 +244,9 @@ The following public urls are examples of what you see going to **http://localho
 
 To get started, make a request to one of your tunnel URLs:
 
-http://72f8-104-58-202-197.ngrok.io
+http://ea38-130-65-254-19.ngrok.io
+https://ea38-130-65-254-19.ngrok.io
 
-https://72f8-104-58-202-197.ngrok.io
 ~~~
 
 You can go to ngrok web page to see the public url, so now our Rasa Chatbot GI Cancers Application can be accessed from any client anywhere in the world:
@@ -202,7 +256,7 @@ You can go to ngrok web page to see the public url, so now our Rasa Chatbot GI C
 To make our Rasa Chatbot available to Slack, use the **ngrok URL** followed by webhooks followed by Slack channel followed by webhook.
 
 ~~~bash
-http://72f8-104-58-202-197.ngrok.io/webhooks/slack/webhook
+http://ea38-130-65-254-19.ngrok.io/webhooks/slack/webhook
 ~~~
 
 ## Appendix: Build a Custom Docker Image Rasa & Scrapy
