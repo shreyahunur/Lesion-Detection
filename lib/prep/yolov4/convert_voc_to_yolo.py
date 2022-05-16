@@ -24,14 +24,12 @@ class ConvertPascalVocToYolo:
         self.m_classes = user_classes
         self.run()
 
-    # TODO: Modify getImagesInDir for valid and test
-    # Already have the functions for it
-
-    # Currently getImagesDir works for train2019 dir
+    # getImagesDir works for train2019 and val2019 and test2019 dirs
+    # val2019 and test2019 have sudirs with images in each
     def getImagesInDir(self, dir_path):
         image_list = []
         # print("image dir_path =", dir_path)
-        for filename in glob.glob(dir_path + '/*.jpg'):
+        for filename in glob.glob(dir_path + '/**/*.jpg', recursive=True):
             # print("filename =", filename)
             image_list.append(filename)
 
@@ -97,12 +95,24 @@ class ConvertPascalVocToYolo:
             if not os.path.exists(output_path):
                 os.makedirs(output_path)
 
-            image_paths = self.getImagesInDir(image_base_dir)
             list_file = open(full_dir_path + '.txt', 'w')
 
-            for image_path in tqdm(image_paths):
-                list_file.write(image_path + '\n')
-                self.convert_annotation(pascal_voc_path, output_path, image_path)
+            if "train2019" in dir_path:
+                image_paths = self.getImagesInDir(image_base_dir)
+
+                for image_path in tqdm(image_paths):
+                    list_file.write(image_path + '\n')
+                    self.convert_annotation(pascal_voc_path, output_path, image_path)
+            elif "val2019" in dir_path or "test2019" in dir_path:
+                for videonum_dir in os.listdir(image_base_dir):
+                    if not os.path.exists(output_path + "/" + videonum_dir):
+                        os.makedirs(output_path + "/" + videonum_dir)
+                    image_paths = self.getImagesInDir(image_base_dir + "/" + videonum_dir + "/")
+
+                    for image_path in tqdm(image_paths):
+                        list_file.write(image_path + '\n')
+                        self.convert_annotation(pascal_voc_path + "/" + videonum_dir + "/", output_path + "/" + videonum_dir + "/", image_path)
+
             list_file.close()
 
             print("Finished processing: " + dir_path)
