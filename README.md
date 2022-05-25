@@ -1,4 +1,4 @@
-# Lesion-Detection
+# Lesion-Detection (CMPE257 Spring 2022)
 
 Guide to Deploying Lesion Detection Dev environment in a Docker container:
 
@@ -20,7 +20,7 @@ For more info on our CNN Polyp Classification model, check out our notebook belo
 
 For more info on our UNet Polyp Segmentation model, check out our notebook below:
 
-- [UNet_Polyp_Segmentation](Notebooks/UNet_Polyp_Segmentation.ipynb)
+  [UNet_Polyp_Segmentation](Notebooks/UNet_Polyp_Segmentation.ipynb)
 
 For this notebook above, we manually created our own segmentation labeled images:
 
