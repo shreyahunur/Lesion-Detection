@@ -11,6 +11,7 @@ A gastroenterologist is a doctor who diagnoses patients for colon cancer, which 
 - [ ] Updated **[CNN_Polyp_Classification](Notebooks/CNN_Polyp_Classification.ipynb)** Notebook Notebook
 - [ ] Updated **[YOLOv4_Polyp_Detection](Notebooks/YOLOv4_Polyp_Detection.ipynb)** Notebook
 - [ ] Updated **[UNet_Polyp_Segmentation](Notebooks/UNet_Polyp_Segmentation.ipynb)** Notebook
+    - Created 200 Masked Binary Labels out of 28K+ Training Images. During the CMPE257 Project, 100 Masked Binary Labels were created
 - [ ] Integrated Our DL Models into Rasa AI System for Backend
 - [ ] Integrated Unity with Rasa for Frontend
 
