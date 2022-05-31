@@ -185,6 +185,7 @@ class ActionRunImageClassification(Action):
 		save_clf_polyp_file = "{}/pred_polyp_{}_{}.jpg".format(save_dst, classes[y_pred_polyps[p_id_frame_n]], 0)
 		plt.savefig(save_clf_polyp_file, bbox_inches="tight")
 
+		print("At Absolute Clf Image Path:", save_clf_polyp_file)
 		dispatcher.utter_message(image=save_clf_polyp_file)
 		# dispatcher.utter_message(text="Running Img Classifier")
 		return []
