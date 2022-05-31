@@ -1,10 +1,67 @@
 # Lesion-Detection
 
-Lesion Detection for ESD in colon
+Lesion Detection for Colonoscopy
 
 ## Abstract (Purpose of ML App)
 
 A gastroenterologist is a doctor who diagnoses patients for colon cancer, which is one of the most common diagnosed cancers throughout the world. Detecting these lesions in the colon usually requires using an endoscope device with a camera that goes to the patient’s colon area. This lesion detection is also a difficult challenge for specialists, which could result in human error. So AI/ML engineers have stepped in to provide assistance to these specialists to increase the accuracy and the early diagnosis rate for lesion detection. After consulting with some medical tech companies about the data set they would want to use for AI/ML, we have determined we will need to either create a data set from scratch from several YouTube videos where specialists identified lesions in the colon or find a data set that has already been created doing a similar process just mentioned. For creating the data set, we would extract out the frames from these videos, label a sample of the frames with “lesion or not lesion” to do semi-supervised learning. We plan to read multiple publications on the latest Deep Neural Network architectures that are being used to identify lesions in the colon. The goal that some of these companies are aiming to do is perform non-invasive techniques to treat or remove the patients colon cancer usually a procedure known as Endoscopic submucosal dissection (ESD) and lesion detection will help in the process of using automated robotic surgery to cut out the lesion from the patient, ultimately reducing the mortality rate of colorectal cancer.
+
+## Outline
+
+- [Lesion-Detection](#lesion-detection)
+  - [Abstract (Purpose of ML App)](#abstract-purpose-of-ml-app)
+  - [Outline](#outline)
+  - [Software Dependencies](#software-dependencies)
+  - [Setup Software Dev Environment](#setup-software-dev-environment)
+  - [How to Run Demo](#how-to-run-demo)
+  - [Accomplishments After CMPE 257 Ended](#accomplishments-after-cmpe-257-ended)
+  - [CMPE 257 Spring 2022 Project Accomplishments](#cmpe-257-spring-2022-project-accomplishments)
+    - [CNN Polyp Classification Model Notebook](#cnn-polyp-classification-model-notebook)
+    - [UNet Polyp Segmentation Model Notebook](#unet-polyp-segmentation-model-notebook)
+    - [YOLOv4 Polyp Detection Model Notebook](#yolov4-polyp-detection-model-notebook)
+    - [Integrating Our Models into Rasa AI System](#integrating-our-models-into-rasa-ai-system)
+    - [Deploying Lesion Detection Dev environment to Docker](#deploying-lesion-detection-dev-environment-to-docker)
+  - [Dataset links](#dataset-links)
+  - [Research Publication links](#research-publication-links)
+
+## Software Dependencies
+
+The following software can be installed in Anaconda or Docker:
+
+- Rasa 3.1.0 (Rasa Chatbot Server)
+- Rasa 3.1.1 SDK (Rasa Actions Server)
+- TensorFlow-GPU 2.7.3 (Needed for Rasa Actions Server)
+- OpenCV-Python 4.5.5.64 (Needed for Rasa Actions Server)
+- Scikit-Learn 0.24.2
+- Seaborn 0.11.2
+- Matplotlib 3.5.1
+- Pandas 1.3.4
+- Jupyter 1.0.0
+- Ngrok version latest
+
+CUDA:
+
+- Nvidia CUDA 11.6
+- cudatoolkit==11.3.1
+- CUDNN==8.2.1
+
+1\. Open your terminal and clone this project repository
+
+~~~batch
+git clone https://github.com/shreyahunur/Lesion-Detection.git
+~~~
+
+2\. Go to the Lesion Detection Project:
+
+~~~batch
+rem change "path/to" with your path to the project
+cd path/to/Lesion-Detection
+~~~
+
+
+## Setup Software Dev Environment
+
+## How to Run Demo
 
 ## Accomplishments After CMPE 257 Ended
 
@@ -70,7 +127,7 @@ We have made conversational chatbot using Rasa with four different entities inte
 -> Doctor will ask about symptoms regarding colon cancer.
 -> Doctor will ask about types of treatments we can use to cure it?
 
-### Deploying Lesion Detection Dev environment to Docker:
+### Deploying Lesion Detection Dev environment to Docker
 
 - [Deploy CMPE257 ML LD Docker Container](./docs/README.md)
 
