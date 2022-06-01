@@ -13,12 +13,15 @@ import cv2
 import time
 import random
 import numpy as np
+import pandas as pd
 
 # from typing import Any, Text, Dict, List
 from rasa_sdk import Action #, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
 import matplotlib.pyplot as plt
+
+from PIL import Image
 
 # Keras CNN Polyp Classifer
 from tensorflow.keras.models import load_model
@@ -27,42 +30,6 @@ from tensorflow.keras import __version__ as keras_version
 
 import xml.etree.ElementTree as ET
 from sklearn.preprocessing import LabelEncoder
-
-# import sys
-
-# sys.path.append("core")
-
-# TensorFlow YoloV4 Polyp Detector
-# import tensorflow as tf
-# physical_devices = tf.config.experimental.list_physical_devices('GPU')
-# if len(physical_devices) > 0:
-#     tf.config.experimental.set_memory_growth(physical_devices[0], True)
-# from absl import app, flags, logging
-# from absl.flags import FLAGS
-
-# import core.utils as utils
-# from core.config import cfg
-# from core.yolov4 import filter_boxes
-# from tensorflow.python.saved_model import tag_constants
-# from PIL import Image
-# import cv2
-# import numpy as np
-# from tensorflow.compat.v1 import ConfigProto
-# from tensorflow.compat.v1 import InteractiveSession
-
-# flags.DEFINE_string('framework', 'tf', '(tf, tflite, trt')
-# flags.DEFINE_string('weights', './checkpoints/yolov4-416',
-#                     'path to weights file')
-# flags.DEFINE_integer('size', 416, 'resize images to')
-# flags.DEFINE_boolean('tiny', False, 'yolo or yolo-tiny')
-# flags.DEFINE_string('model', 'yolov4', 'yolov3 or yolov4')
-# flags.DEFINE_list('images', './test/image/', 'path to input image')
-# flags.DEFINE_string('video', './test/video/', 'path to input video mp4')
-# flags.DEFINE_string('output', "test/dtr_video/", 'path to output video')
-# flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
-# flags.DEFINE_float('iou', 0.45, 'iou threshold')
-# flags.DEFINE_float('score', 0.25, 'score threshold')
-# flags.DEFINE_boolean('dont_show', False, 'dont show image output')
 
 #
 #
@@ -129,6 +96,19 @@ class ActionRunImageClassification(Action):
 			file.close()
 		return label_names
 
+	def get_xml_label_names(self, xml_files):
+		label_names = []
+		for xml_file in tqdm(xml_files):
+			train_y_tree = ET.parse(xml_file)
+			train_y_root = train_y_tree.getroot()
+			if train_y_root.find("object") != None:
+				train_y_object = train_y_root.find("object")
+				train_y_polyp_name = train_y_object.find("name").text
+			else:
+				train_y_polyp_name = "Not Specified"
+			label_names.append(train_y_polyp_name)
+		return label_names
+
 	def run(self, dispatcher, tracker, domain):
 		classes = ["adenomatous", "hyperplastic"]
 		cnn_file = "keras_cnn_clf/polyp_cnn_clf_28000imgs_128hw.h5"
@@ -155,7 +135,7 @@ class ActionRunImageClassification(Action):
 		base_label_path = "test/Annotation/" + patient_id
 
 		patient_polyp_label_filepaths, patient_polyp_label_filenames = self.get_filepaths(base_label_path)
-		patient_polyp_labels = self.get_txt_label_names(patient_polyp_label_filepaths)
+		patient_polyp_labels = self.get_xml_label_names(patient_polyp_label_filepaths)
 		label_enc = LabelEncoder()
 		patient_polyp_labels = label_enc.fit_transform(patient_polyp_labels)
 
@@ -182,7 +162,7 @@ class ActionRunImageClassification(Action):
 		if not os.path.exists(save_dst):
 			os.makedirs(save_dst)
 
-		save_clf_polyp_file = "{}/pred_polyp_{}_{}.jpg".format(save_dst, classes[y_pred_polyps[p_id_frame_n]], 0)
+		save_clf_polyp_file = "{}/pred_polyp_{}_{}.jpg".format(save_dst, classes[y_pred_polyps[p_id_frame_n]], p_id_frame_n)
 		plt.savefig(save_clf_polyp_file, bbox_inches="tight")
 
 		print("At Absolute Clf Image Path:", save_clf_polyp_file)
@@ -195,80 +175,193 @@ class ActionRunObjectDetection(Action):
 	def name(self):
 		return "action_run_object_detection"
 
+	def get_filepaths(self, basepath, remove_ext=False):
+		files = []
+		filenames = []
+		for filename in os.listdir(basepath):
+			if remove_ext is True:
+				file_name, file_ext = filename.split(".")
+				filepath = os.path.join(basepath, file_name)
+				files.append(filepath)
+				filenames.append(file_name)
+			else:
+				filepath = os.path.join(basepath, filename)
+				files.append(filepath)
+				filenames.append(filename)
+		return files, filenames
+
+	def read_img(self, img_path, flag = cv2.IMREAD_COLOR):
+		# (height, width, 3)
+		image = cv2.imread(img_path, flag)
+		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+		return image
+
+	def get_images(self, image_group, size, flag = cv2.IMREAD_COLOR):
+		images = []
+		for image_path in image_group:
+			image = read_img(image_path, flag)
+			resized_img = cv2.resize(image, (size, size))
+			images.append(resized_img)
+		return images
+
+	def get_xml_label_names(self, xml_files):
+		label_names = []
+		for xml_file in xml_files:
+			filepath, file_ext = xml_file.split(".")
+			if file_ext == "xml":
+				train_y_tree = ET.parse(xml_file)
+				train_y_root = train_y_tree.getroot()
+				if train_y_root.find("object") != None:
+					train_y_object = train_y_root.find("object")
+					train_y_polyp_name = train_y_object.find("name").text
+				else:
+					train_y_polyp_name = "Not Specified"
+				label_names.append(train_y_polyp_name)
+			else:
+				print("Ignoring .jpg file")
+		return label_names
+
+	def cv_yolo_detect(self, patient_id):
+		# Hyperplastic Polyp Image 19 from video 3
+		ADENOMATOUS = 0
+		HYPERPLASTIC = 1
+		classes = ["adenomatous", "hyperplastic"]
+
+		# Read Darknet DNN M
+		configPath = "yolov4/cfg/yolov4-custom.cfg"
+		weightsPath = "yolov4/darknet/polyp_dtr/training/yolov4-custom_best.weights"
+		yolo_net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
+		layer_names = yolo_net.getLayerNames()
+		# updating layer_names to be just unconnected output layers
+		layer_names = [layer_names[layer_i-1] for layer_i in yolo_net.getUnconnectedOutLayers()]
+
+		# Load Labels from obj.names
+		labelsPath = "yolov4/data/obj.names"
+		POLYP_LABELS = open(labelsPath).read().strip().split("\n")
+
+		# Preprocessing Input Images: get_filepaths picks up both jpg and xml
+		base_img_path = "test/image/" + str(patient_id)
+
+		patient_polyp_img_filepaths, patient_polyp_img_filenames = self.get_filepaths(base_img_path)
+		patient_polyp_images = self.get_images(patient_polyp_img_filepaths, 416)
+		# randomly select one polyp frame from patient ID's video set
+		p_id_frame_n = random.randint(0, len(patient_polyp_images)-1)
+		# p_id_frame_n = 19 # first hyperplastic polyp detection success
+		print("p_id_frame_n =", p_id_frame_n)
+
+		base_label_path = "test/Annotation/" + str(patient_id)
+
+		patient_polyp_label_filepaths, patient_polyp_label_filenames = self.get_filepaths(base_label_path)
+		patient_polyp_labels = self.get_xml_label_names(patient_polyp_label_filepaths)
+		label_enc = LabelEncoder()
+		patient_polyp_labels = label_enc.fit_transform(patient_polyp_labels)
+
+		(height, width) = patient_polyp_images[p_id_frame_n].shape[:2]
+		blob = cv2.dnn.blobFromImage(patient_polyp_images[p_id_frame_n], 1/255.0, (416, 416), swapRB=True, crop=False)
+		yolo_net.setInput(blob)
+		# after passing in unconnected output layer names, it makes each detection a list
+		layerOutputs = yolo_net.forward(layer_names)
+		# layerOutputs = yolo_net.forward()
+		# print("layerOutputs = ", layerOutputs)
+
+		# Initializing for getting Box Coordinates, Confidences, ClassID 
+		boxes = []
+		confidences = []
+		classIDs = []
+		# These two thresholds work well for patient ID 3. No pred for P ID 1, 4.
+		conf_threshold = 0.5 # Conf Score threshold
+		nms_threshold = 0.4 # IOU threshold
+
+		# Get Confidence:
+		# layerOutputs contains a huge 2D array of floats, we need our coordinates
+		# to be drawn as bounding boxes, classID, and confidence scores of each detection
+		# for each detection from each output layer get the confidence, class id, bounding
+		# box params and ignor weak detections (confidence < 0.5)
+		for output in layerOutputs:
+			# print("len(output) =", len(output))
+			for detection in output:
+				# print("len(detection) =", len(detection))
+				scores = detection[5:] # skip first 5 detections
+				classID = np.argmax(scores)
+				confidence = scores[classID] # get index of highest score; best prediction
+
+				# compare best prediction against our threshold; if confidence is more, then draw bbox
+				if confidence > conf_threshold:
+					print("confidence =", confidence)
+					print("scores =", scores)
+					# get 0 up to but not including 4; 0 to 3 detections for the box
+					box = detection[0:4] * np.array([width, height, width, height])
+					(centerX, centerY, width, height) = box.astype("int")
+					x = int(centerX - (width/2))
+					y = int(centerY - (height/2))
+					boxes.append([x, y, int(width), int(height)])
+					confidences.append(float(confidence))
+					classIDs.append(classID)
+
+
+		# Non Maximum Suppression (NMS)
+		# NOTE: If done incorrectly object detection will be slow.
+		# We need to use our boxes, confidences calculated from previous step
+		# Our model returns more than one predictions, more than one boxes are
+		# present to a single object. NMS returns the single best bounding box
+		idxs = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
+
+		# Draw Bounding Boxes; Get our Detector Running Now; Adenomatous Polyp Count; Hyperplastic Polyp Count
+		apc = 0
+		hpc = 0
+
+		if len(idxs) > 0:
+			for i in idxs.flatten():
+				(x, y) = (boxes[i][0], boxes[i][1])
+				(w, h) = (boxes[i][2], boxes[i][3])
+
+				if POLYP_LABELS[classIDs[i]] == classes[ADENOMATOUS]:
+					apc += 1
+					color = (255, 100, 0) # RGB will be Green
+					cv2.rectangle(patient_polyp_images[p_id_frame_n], (x, y), (x + w, y + h), color, 2)
+					text = "{}".format(POLYP_LABELS[classIDs[i]])
+					cv2.putText(patient_polyp_images[p_id_frame_n], text, (x + w, y + h), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
+
+				elif POLYP_LABELS[classIDs[i]] == classes[HYPERPLASTIC]:
+					hpc += 1
+					color = (0, 125, 125) # RGB will be Blue
+					cv2.rectangle(patient_polyp_images[p_id_frame_n], (x, y), (x + w, y + h), color, 2)
+					text = "{}".format(POLYP_LABELS[classIDs[i]])
+					cv2.putText(patient_polyp_images[p_id_frame_n], text, (x + w, y + h),  cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
+
+
+		text1 = "No. of Adenomatous Polyps in image: " + str(apc)
+		text2 = "No. of Hyperplastic Polyps in image: " + str(hpc)
+		color1 = (0, 255, 0)
+		color2 = (0, 0, 255)
+
+		# cv2.putText(patient_polyp_images[p_id_frame_n],  text1, (2, 15),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, color1, 2)
+		# cv2.putText(patient_polyp_images[p_id_frame_n],  text2, (2, 30),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, color2, 2)
+
+		image = Image.fromarray(patient_polyp_images[p_id_frame_n].astype(np.uint8))
+
+		image.show()
+		patient_polyp_images[p_id_frame_n] = cv2.cvtColor(patient_polyp_images[p_id_frame_n], cv2.COLOR_BGR2RGB)
+
+		save_dst="cv_yolov4/trained_7000_orig/dtc_images"
+		apc_hpc_count = "apc_" + str(apc) + "_hpc_" + str(hpc)
+
+		if not os.path.exists(save_dst):
+			os.makedirs(save_dst)
+
+		save_dtc_polyp_file = "{}/dtc_polyp_{}_{}.jpg".format(save_dst, apc_hpc_count, p_id_frame_n)
+		cv2.imwrite(save_dtc_polyp_file, patient_polyp_images[p_id_frame_n])
+
+		return save_dtc_polyp_file
+
 	def run(self, dispatcher, tracker, domain):
 		patient_id = tracker.get_slot("patient_dtr_id")
 		print("Sending polyp image detection for Patient ID =", patient_id)
 
-		# based on TF YoloV4 Detect.py code
-		# config = ConfigProto()
-		# config.gpu_options.allow_growth = True
-		# session = InteractiveSession(config=config)
-		# STRIDES, ANCHORS, NUM_CLASS, XYSCALE = utils.load_config(FLAGS)
-		# input_size = FLAGS.size
-		# images_path = FLAGS.images + patient_id
-		# polyp_img_files = os.listdir(images_path)
+		out_dtc_polyp_file = self.cv_yolo_detect(patient_id)
 
-		# # load model
-		# saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
-
-		# # loop through images in list and run Yolov4 model on each
-		# for count, image_path in enumerate(polyp_img_files, 1):
-		# 	original_image = cv2.imread(image_path)
-		# 	original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-
-		# 	image_data = cv2.resize(original_image, (input_size, input_size))
-		# 	image_data = image_data / 255.
-
-		# 	images_data = []
-		# 	for i in range(1):
-		# 		images_data.append(image_data)
-		# 	images_data = np.asarray(images_data).astype(np.float32)
-
-		# 	infer = saved_model_loaded.signatures['serving_default']
-		# 	batch_data = tf.constant(images_data)
-		# 	pred_bbox = infer(batch_data)
-		# 	for key, value in pred_bbox.items():
-		# 		boxes = value[:, :, 0:4]
-		# 		pred_conf = value[:, :, 4:]
-
-		# 	print("1st boxes = ", boxes)
-		# 	print("1st pred_conf = ", pred_conf)
-
-		# 	boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
-		# 		boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
-		# 		scores=tf.reshape(
-		# 			pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
-		# 		max_output_size_per_class=50,
-		# 		max_total_size=50,
-		# 		iou_threshold=FLAGS.iou,
-		# 		score_threshold=FLAGS.score
-		# 	)
-		# 	print("2nd boxes = ", boxes)
-		# 	print("scores = ", scores)
-		# 	print("classes = ", classes)
-		# 	print("valid_detections = ", valid_detections)
-		# 	pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
-
-		# 	# read in all class names from config
-		# 	# class_names = utils.read_class_names(cfg.YOLO.CLASSES)
-
-		# 	# by default allow all classes in .names file
-		# 	allowed_classes = ["adenomatous", "hyperplastic"]
-			
-		# 	# custom allowed classes (uncomment line below to allow detections for only people)
-		# 	#allowed_classes = ['person']
-
-		# 	image = utils.draw_bbox(original_image, pred_bbox, allowed_classes = allowed_classes)
-
-		# 	image = Image.fromarray(image.astype(np.uint8))
-		# 	# if not FLAGS.dont_show:
-		# 	# 	image.show()
-		# 	image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
-		# 	out_dtr_img_file = "test/dtr_img/" + patient_id + "/dtr_img_" + image_path + ".jpg"
-		# 	cv2.imwrite(out_dtr_img_file, image)
-
-		# dispatcher.utter_message(image=out_dtr_img_file)
-		dispatcher.utter_message(text="Running Object Detection")
+		dispatcher.utter_message(image=out_dtc_polyp_file)
+		# dispatcher.utter_message(text="Running Object Detection")
 		return []
 	    
 class ActionRunVideoDetection(Action):
