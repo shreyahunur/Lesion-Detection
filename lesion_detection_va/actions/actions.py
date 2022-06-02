@@ -17,6 +17,7 @@ import pandas as pd
 
 # from typing import Any, Text, Dict, List
 from rasa_sdk import Action #, Tracker
+from rasa_sdk.events import SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 
 import matplotlib.pyplot as plt
@@ -98,7 +99,7 @@ class ActionRunImageClassification(Action):
 
 	def get_xml_label_names(self, xml_files):
 		label_names = []
-		for xml_file in tqdm(xml_files):
+		for xml_file in xml_files:
 			train_y_tree = ET.parse(xml_file)
 			train_y_root = train_y_tree.getroot()
 			if train_y_root.find("object") != None:
@@ -113,6 +114,8 @@ class ActionRunImageClassification(Action):
 		classes = ["adenomatous", "hyperplastic"]
 		cnn_file = "keras_cnn_clf/polyp_cnn_clf_28000imgs_128hw.h5"
 		patient_id = tracker.get_slot("patient_clf_id")
+		if not patient_id:
+			patient_id = 1
 		print("Sending polyp classifier for Patient ID =", patient_id)
 
 		f = h5py.File(cnn_file, mode="r")
@@ -168,7 +171,9 @@ class ActionRunImageClassification(Action):
 		print("At Absolute Clf Image Path:", save_clf_polyp_file)
 		dispatcher.utter_message(image=save_clf_polyp_file)
 		# dispatcher.utter_message(text="Running Img Classifier")
-		return []
+
+		# reset slot
+		return [SlotSet("patient_clf_id", None)]
 	    
 
 class ActionRunObjectDetection(Action):
@@ -199,7 +204,7 @@ class ActionRunObjectDetection(Action):
 	def get_images(self, image_group, size, flag = cv2.IMREAD_COLOR):
 		images = []
 		for image_path in image_group:
-			image = read_img(image_path, flag)
+			image = self.read_img(image_path, flag)
 			resized_img = cv2.resize(image, (size, size))
 			images.append(resized_img)
 		return images
@@ -269,8 +274,8 @@ class ActionRunObjectDetection(Action):
 		confidences = []
 		classIDs = []
 		# These two thresholds work well for patient ID 3. No pred for P ID 1, 4.
-		conf_threshold = 0.5 # Conf Score threshold
-		nms_threshold = 0.4 # IOU threshold
+		conf_threshold = 0.15 # Conf Score threshold
+		nms_threshold = 0.14 # IOU threshold
 
 		# Get Confidence:
 		# layerOutputs contains a huge 2D array of floats, we need our coordinates
@@ -338,9 +343,11 @@ class ActionRunObjectDetection(Action):
 		# cv2.putText(patient_polyp_images[p_id_frame_n],  text1, (2, 15),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, color1, 2)
 		# cv2.putText(patient_polyp_images[p_id_frame_n],  text2, (2, 30),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, color2, 2)
 
-		image = Image.fromarray(patient_polyp_images[p_id_frame_n].astype(np.uint8))
+		# image = Image.fromarray(patient_polyp_images[p_id_frame_n].astype(np.uint8))
 
-		image.show()
+		# image.show()
+		# decreasing size of image to make it fit better in Unity chat window
+		patient_polyp_images[p_id_frame_n] = cv2.resize(patient_polyp_images[p_id_frame_n], (int(416*0.75), int(416*0.75)))
 		patient_polyp_images[p_id_frame_n] = cv2.cvtColor(patient_polyp_images[p_id_frame_n], cv2.COLOR_BGR2RGB)
 
 		save_dst="cv_yolov4/trained_7000_orig/dtc_images"
@@ -356,13 +363,17 @@ class ActionRunObjectDetection(Action):
 
 	def run(self, dispatcher, tracker, domain):
 		patient_id = tracker.get_slot("patient_dtr_id")
+		if not patient_id:
+			patient_id = 1
 		print("Sending polyp image detection for Patient ID =", patient_id)
 
 		out_dtc_polyp_file = self.cv_yolo_detect(patient_id)
 
 		dispatcher.utter_message(image=out_dtc_polyp_file)
 		# dispatcher.utter_message(text="Running Object Detection")
-		return []
+
+		# reset slot
+		return [SlotSet("patient_dtr_id", None)]
 	    
 class ActionRunVideoDetection(Action):
 	def name(self):
